@@ -8,17 +8,18 @@ class PlayerPaddle;
 
 class Ball : public SceneNode {
   public:
-    Ball();
+    Ball(int id);
     virtual ~Ball() { }
 
     static constexpr uint16_t Radius = 10;
     static constexpr uint16_t Speed = 400.f;
 
-    void collideWithPaddle(const PlayerPaddle* paddle);
+    bool collideWithPaddle(const PlayerPaddle* paddle);
 
     sf::FloatRect getGlobalBounds() const;
 
-    void destroy() { m_destroyed = true; }
+    inline void destroy() { m_destroyed = true; }
+    inline bool isDestroyed() { return m_destroyed; }
 
   private:
     virtual void drawCurrent(sf::RenderTarget& target,sf::RenderStates states) const override final;

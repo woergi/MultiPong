@@ -95,8 +95,13 @@ GameOver::GameOver(StateStack& stack, Context& ctx) : State(stack, ctx) {
   m_background.setFillColor(sf::Color(0, 0, 0, 150));
   m_background.setPosition(World::HPadding, World::HeaderHeight);
 
-  std::string msg("Team <" + std::to_string(static_cast<short>(ctx.teamWinSide)) + "> wins\n"
-                  "Press any key to start a new game");
+  std::string msg;
+  if (ctx.teamWinSide == PlayfieldSide::None)
+    msg = "Ran out of balls ... So nobody won :D"
+          "\n Press any key to start a new game";
+  else
+    msg = "Team <" + std::to_string(static_cast<short>(ctx.teamWinSide)) 
+          + "> wins\n Press any key to start a new game";
   m_text.setFont(getContext().fonts->get(FontID::Sansation));
   m_text.setCharacterSize(32);
   m_text.setString(msg);

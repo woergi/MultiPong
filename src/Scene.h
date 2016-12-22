@@ -31,6 +31,8 @@ class SceneNode : public sf::Transformable, public sf::Drawable {
     sf::Transform getWorldTransform() const;
     sf::Vector2f getWorldPosition() const;
 
+    inline int getID() { return m_id; }
+
   private:
     virtual void draw(sf::RenderTarget& target,sf::RenderStates states) const override final;
     virtual void drawCurrent(sf::RenderTarget& target,sf::RenderStates states) const { }

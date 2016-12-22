@@ -19,13 +19,18 @@ int main(int argc, char* argv[]) {
   std::vector<std::shared_ptr<Player>> players;
   ResourceHolder<FontID, sf::Font> m_resFont;
 
-  for (int playerNum = 1; playerNum <= 2; ++playerNum)
+  for (int playerNum = 1; playerNum <= 4; ++playerNum)
     players.emplace_back(std::shared_ptr<Player>(new Player(playerNum)));
 
-  players[0]->assignKey(Player::Action::MOVE_DOWN, sf::Keyboard::F);
-  players[0]->assignKey(Player::Action::MOVE_UP, sf::Keyboard::D);
+  players[0]->assignKey(Player::Action::MOVE_DOWN, sf::Keyboard::A);
+  players[0]->assignKey(Player::Action::MOVE_UP, sf::Keyboard::S);
+  players[2]->assignKey(Player::Action::MOVE_DOWN, sf::Keyboard::F);
+  players[2]->assignKey(Player::Action::MOVE_UP, sf::Keyboard::D);
+
   players[1]->assignKey(Player::Action::MOVE_DOWN, sf::Keyboard::J);
   players[1]->assignKey(Player::Action::MOVE_UP, sf::Keyboard::K);
+  players[3]->assignKey(Player::Action::MOVE_DOWN, sf::Keyboard::L);
+  players[3]->assignKey(Player::Action::MOVE_UP, sf::Keyboard::O);
 
   m_resFont.load(FontID::Sansation, "resources/sansation.ttf");
 

@@ -4,6 +4,7 @@
 #include "Ball.h"
 
 #include <SFML/Window.hpp>
+#include <iostream>
 
 const sf::Time World::TimePerFrame = sf::seconds(1.f / 60.f);
 
@@ -33,16 +34,19 @@ World::World(StateStack& stack, Context& ctx) :  State(stack, ctx) {
   m_sceneGraph.attachChild(std::move(playFieldLayer));
 
   ctx.teamWinSide = PlayfieldSide::None;
+
+  updatePlayer();
 }
 
 void World::updatePlayer() {
   size_t numPlayers = 0;
+  int ballID = 0;
   for (const auto p : *getContext().players) {
     sf::Vector2f playerPos;
     playerPos.x = PlayerPaddle::Padding + (PlayerPaddle::Padding + PlayerPaddle::Width) * numPlayers / 2;
     if (numPlayers % 2) {
       playerPos.x = PlayfieldWidth - playerPos.x;
-      SceneNode::Ptr ball(new Ball());
+      SceneNode::Ptr ball(new Ball(++ballID));
       m_balls.push_back(static_cast<Ball*>(ball.get()));
       getLayerRoot(SceneLayer::PlayField)->attachChild(std::move(ball));
     }
@@ -84,9 +88,6 @@ bool World::handleEvent(const sf::Event& event) {
 }
 
 bool World::update() {
-  if (m_alivePlayers.size() != getContext().players->size())
-    updatePlayer();
-
   for (auto const & p : *getContext().players)
     p->update(m_cmdQueue);
 
@@ -95,7 +96,11 @@ bool World::update() {
 
   m_sceneGraph.update();
 
+  for (std::vector<Ball*>::iterator it = m_balls.begin(); it != m_balls.end(); )
+    (*it)->isDestroyed() ? it = m_balls.erase(it) : ++it;
+
   handleBallCollissions();
+  checkDrawn();
   return true;
 }
 
@@ -106,13 +111,20 @@ void World::draw() {
 void World::handleBallCollissions() {
   Command rmPlayerPaddleCmd{Category::PlayerPaddle, 0,
     derivedAction<PlayerPaddle>([=](PlayerPaddle& p) { p.destroy(); }) };
-  Command rmBallCmd{Category::Ball, 0, //<- TODO add id
-    derivedAction<Ball>([=](Ball& b) { b.destroy(); }) };
 
   for (auto b : m_balls) {
+    bool collideWitPlayer = false;
+    Command rmBallCmd{Category::Ball, b->getID(),
+      derivedAction<Ball>([=](Ball& b) { b.destroy(); }) };
+
     for (auto p : m_palyerPaddles) {
-      b->collideWithPaddle(p);
+      if (b->collideWithPaddle(p)) {
+        collideWitPlayer = true;
+        break;
+      }
     }
+    if (collideWitPlayer)
+      continue;
 
     if (b->getGlobalBounds().left <= 0) {
       //Kill player on the left side
@@ -149,5 +161,12 @@ void World::handleBallCollissions() {
       requestStackPush(StateID::Menu_GameOver);
     }
   }
+}
+
+void World::checkDrawn() {
+  if (m_balls.empty() 
+      && !m_alivePlayers[PlayfieldSide::Left].empty()
+      && !m_alivePlayers[PlayfieldSide::Right].empty())
+    requestStackPush(StateID::Menu_GameOver);
 }
 

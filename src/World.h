@@ -49,6 +49,7 @@ class World : public State {
 
     void updatePlayer();
     void handleBallCollissions();
+    void checkDrawn();
 
     SceneNode m_sceneGraph;
     std::array<SceneNode*, static_cast<short>(SceneLayer::LayerCount)> m_sceneLayers;

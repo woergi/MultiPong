@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-Ball::Ball() : SceneNode(Category::Ball), m_destroyed(false) {
+Ball::Ball(int id) : SceneNode(Category::Ball, id), m_destroyed(false) {
   m_ball.setRadius(Radius - 3);
   m_ball.setOutlineThickness(3);
   m_ball.setOutlineColor(sf::Color::Black);
@@ -43,7 +43,7 @@ sf::FloatRect Ball::getGlobalBounds() const {
   return getWorldTransform().transformRect(m_ball.getGlobalBounds()); 
 }
 
-void Ball::collideWithPaddle(const PlayerPaddle* paddle) {
+bool Ball::collideWithPaddle(const PlayerPaddle* paddle) {
   if (paddle->getGlobalBounds().intersects(getGlobalBounds())) {
     m_ballAngle = PI - m_ballAngle - std::rand() % 20 * PI / 180;
 
@@ -54,6 +54,8 @@ void Ball::collideWithPaddle(const PlayerPaddle* paddle) {
       m_ball.setPosition(World::PlayfieldWidth - 2*Radius - 0.1f,
                          m_ball.getPosition().y);
     }
+    return true;
   }
+  return false;
 }
 
