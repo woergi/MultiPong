@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
   m_resFont.load(FontID::Sansation, "resources/sansation.ttf");
 
-  State::Context ctx = {&window, &players, &m_resFont, 0};
+  State::Context ctx = {&window, &players, &m_resFont};
   StateStack states(ctx);
   sf::Clock clock;
   sf::Time timeSinceLastUpdate = sf::Time::Zero;

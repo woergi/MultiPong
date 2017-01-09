@@ -32,7 +32,6 @@ class State {
       std::vector<std::shared_ptr<Player>>* players;
       FontHolder* fonts;
 
-      uint8_t numBalls;
       PlayfieldSide teamWinSide;
     };
 

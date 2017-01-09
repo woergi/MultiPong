@@ -15,8 +15,21 @@ class Menu : public State {
     virtual bool update() override final;
     virtual bool handleEvent(const sf::Event& ev) override final;
 
+    enum class SelectedElement {
+      BEGIN = 0,
+
+      Start,
+      PlayerNum,
+      Controls,
+      Quit,
+      //Must have a consecutive numbering
+      END
+    };
+
     sf::RectangleShape m_background;
-    sf::Text m_text;
+
+    SelectedElement m_selState;
+    std::map<SelectedElement, sf::Text> m_menuEntries;
 };
 
 class Pause : public State {

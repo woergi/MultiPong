@@ -75,8 +75,10 @@ bool World::handleEvent(const sf::Event& event) {
       getContext().window->close();
       break;
     case sf::Event::KeyPressed:
-      if (event.key.code == sf::Keyboard::Escape)
-        getContext().window->close();
+      if (event.key.code == sf::Keyboard::Escape) {
+        requestStateClear();
+        requestStackPush(StateID::Menu_Main);
+      }
       else if (event.key.code == sf::Keyboard::Space)
         requestStackPush(StateID::Menu_Pause);
       break;

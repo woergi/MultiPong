@@ -1,27 +1,51 @@
 
 #include "Menu.h"
 #include "World.h"
+#include "Player.h"
 
-Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx) {
+Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::Start) {
   m_background.setSize(sf::Vector2f(World::PlayfieldWidth, World::PlayfieldHeight));
   m_background.setOutlineThickness(3);
   m_background.setOutlineColor(sf::Color::Blue);
   m_background.setFillColor(sf::Color(0, 0, 0, 150));
   m_background.setPosition(World::HPadding, World::HeaderHeight);
 
-  m_text.setFont(getContext().fonts->get(FontID::Sansation));
-  m_text.setCharacterSize(32);
-  m_text.setString("Press any key to start");
-  sf::FloatRect textRect = m_text.getLocalBounds();
-  m_text.setOrigin(textRect.left + textRect.width/2.0f,
-                 textRect.top  + textRect.height/2.0f);
-  m_text.setPosition(m_background.getPosition().x + m_background.getSize().x / 2,
+  sf::Text txt;
+
+  txt.setFont(getContext().fonts->get(FontID::Sansation));
+  txt.setCharacterSize(32);
+  sf::FloatRect textRect = txt.getLocalBounds();
+  txt.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
+  txt.setPosition(m_background.getPosition().x + 32,
       m_background.getPosition().y + m_background.getSize().y / 2);
+
+  txt.setString("Start Game");
+  m_menuEntries[SelectedElement::Start] = txt;
+
+  txt.setString("Quit");
+  m_menuEntries[SelectedElement::Quit] = txt;
+
+  txt.setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+  m_menuEntries[SelectedElement::PlayerNum] = txt;
+
+  txt.setString("Controls...");
+  m_menuEntries[SelectedElement::Controls] = txt;
+
+  int entryCnt = 0;
+  for (auto & element : m_menuEntries) {
+    element.second.move(0, 48 * entryCnt++);
+  }
 }
 
 void Menu::draw() {
   getContext().window->draw(m_background);
-  getContext().window->draw(m_text);
+  for (auto & element : m_menuEntries) {
+    if (element.first == m_selState)
+      element.second.setFillColor(sf::Color::Red);
+    else
+      element.second.setFillColor(sf::Color::White);
+    getContext().window->draw(element.second);
+  }
 }
 
 bool Menu::update() {
@@ -29,14 +53,46 @@ bool Menu::update() {
 }
 
 bool Menu::handleEvent(const sf::Event& ev) {
-  if (ev.key.code == sf::Keyboard::Escape) {
-    getContext().window->close();
+  if (ev.type == sf::Event::KeyPressed) {
+    if (ev.key.code == sf::Keyboard::Down) {
+    unsigned nextVal = static_cast<unsigned>(m_selState) + 1;
+    if (nextVal >= static_cast<unsigned>(SelectedElement::END))
+      m_selState = static_cast<SelectedElement>(static_cast<unsigned>(SelectedElement::BEGIN) + 1);
+    else
+      m_selState = static_cast<SelectedElement>(nextVal);
+    }
+    else if (ev.key.code == sf::Keyboard::Up) {
+      unsigned prevVal = static_cast<unsigned>(m_selState) - 1;
+      if (prevVal == static_cast<unsigned>(SelectedElement::BEGIN))
+        m_selState = static_cast<SelectedElement>(static_cast<unsigned>(SelectedElement::END) - 1);
+      else
+        m_selState = static_cast<SelectedElement>(prevVal);
+    }
+    else if (ev.key.code == sf::Keyboard::Left) {
+      if (m_selState == SelectedElement::PlayerNum && getContext().players->size() > 2) {
+        getContext().players->pop_back();
+        m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+      }
+    }
+    else if (ev.key.code == sf::Keyboard::Right) {
+      if (m_selState == SelectedElement::PlayerNum) {
+        getContext().players->emplace_back(std::shared_ptr<Player>(new Player(getContext().players->size()+1)));
+        m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+      }
+    }
+    else if (ev.key.code == sf::Keyboard::Return) {
+      switch (m_selState) {
+        case SelectedElement::Start:
+          requestStateClear();
+          requestStackPush(StateID::World);
+          return true;
+        case SelectedElement::Quit:
+          getContext().window->close();
+          break;
+      }
+    }
   }
 
-  if (ev.type == sf::Event::KeyPressed) {
-    requestStackPop();
-    return true;
-  }
   return false;
 }
 
@@ -78,12 +134,14 @@ bool Pause::update() {
 
 bool Pause::handleEvent(const sf::Event& ev) {
   if (ev.key.code == sf::Keyboard::Escape) {
-    getContext().window->close();
+    requestStateClear();
+    requestStackPush(StateID::Menu_Main);
   }
-
-  if (ev.type == sf::Event::KeyPressed) {
-    requestStackPop();
-    return true;
+  else {
+    if (ev.type == sf::Event::KeyPressed) {
+      requestStackPop();
+      return true;
+    }
   }
   return false;
 }
@@ -97,11 +155,10 @@ GameOver::GameOver(StateStack& stack, Context& ctx) : State(stack, ctx) {
 
   std::string msg;
   if (ctx.teamWinSide == PlayfieldSide::None)
-    msg = "Ran out of balls ... So nobody won :D"
-          "\n Press any key to start a new game";
+    msg = "Ran out of balls ... So nobody won :D";
   else
-    msg = "Team <" + std::to_string(static_cast<short>(ctx.teamWinSide)) 
-          + "> wins\n Press any key to start a new game";
+    msg = "Team <" + std::to_string(static_cast<short>(ctx.teamWinSide))  + "> wins";
+  msg += "\n Press <Return> to start a new game";
   m_text.setFont(getContext().fonts->get(FontID::Sansation));
   m_text.setCharacterSize(32);
   m_text.setString(msg);
@@ -123,10 +180,10 @@ bool GameOver::update() {
 
 bool GameOver::handleEvent(const sf::Event& ev) {
   if (ev.key.code == sf::Keyboard::Escape) {
-    getContext().window->close();
+    requestStateClear();
+    requestStackPush(StateID::Menu_Main);
   }
-
-  if (ev.type == sf::Event::KeyPressed) {
+  else if (ev.key.code == sf::Keyboard::Return) {
     requestStateClear();
     requestStackPush(StateID::World);
     return true;
