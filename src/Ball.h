@@ -12,7 +12,9 @@ class Ball : public SceneNode {
     virtual ~Ball() { }
 
     static constexpr uint16_t Radius = 10;
-    static constexpr uint16_t Speed = 400.f;
+    static uint16_t Speed;
+    static constexpr uint16_t MinBallSpeed = 20.f;
+    static constexpr uint16_t MaxBallSpeed = 480.f;
 
     bool collideWithPaddle(const PlayerPaddle* paddle);
 
@@ -21,6 +23,20 @@ class Ball : public SceneNode {
     inline void destroy() { m_destroyed = true; }
     inline bool isDestroyed() { return m_destroyed; }
 
+    inline static void incBallSpeed() { 
+      Speed += 20; 
+      if (Speed > MaxBallSpeed)
+        Speed = MaxBallSpeed;
+    }
+    inline static void decBallSpeed() { 
+      Speed -= 20; 
+      if (Speed <= MinBallSpeed)
+        Speed = MinBallSpeed;
+    }
+    inline static uint8_t getNormalizedBallSpeed() { 
+      int res = 100. / (MaxBallSpeed - MinBallSpeed) * (Speed-MinBallSpeed);
+      return res < 0 ? 0 : static_cast<uint8_t>(res);
+    }
   private:
     virtual void drawCurrent(sf::RenderTarget& target,sf::RenderStates states) const override final;
     virtual void updateCurrent();

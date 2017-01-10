@@ -20,6 +20,8 @@ class Menu : public State {
 
       Start,
       PlayerNum,
+      PaddleSpeed,
+      BallSpeed,
       Controls,
       Quit,
       //Must have a consecutive numbering

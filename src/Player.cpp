@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+uint16_t Player::PlayerSpeed = 0;
+
 Player::Player(int playerID) : m_playerID(playerID) {
   auto moveLambda = [](float speed, PlayerPaddle& p)
       {p.move(sf::Vector2f(0.f, speed) * World::TimePerFrame.asSeconds());};

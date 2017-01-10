@@ -43,8 +43,25 @@ class Player {
 
     inline int getPlayerNum() { return m_playerID; }
 
+    inline static void incPlayerSpeed() { 
+      PlayerSpeed += 20; 
+      if (PlayerSpeed > MaxPlayerSpeed)
+        PlayerSpeed = MaxPlayerSpeed;
+    }
+    inline static void decPlayerSpeed() { 
+      PlayerSpeed -= 20; 
+      if (PlayerSpeed <= MinPlayerSpeed)
+        PlayerSpeed = MinPlayerSpeed;
+    }
+    inline static uint8_t getNormalizedPlayerSpeed() { 
+      int res = 100. / (MaxPlayerSpeed - MinPlayerSpeed) * (PlayerSpeed-MinPlayerSpeed);
+      return res < 0 ? 0 : static_cast<uint8_t>(res);
+    }
+
    private:
-    constexpr static uint16_t PlayerSpeed = 400;
+    static uint16_t PlayerSpeed;
+    static constexpr uint16_t MinPlayerSpeed = 20;
+    static constexpr uint16_t MaxPlayerSpeed = 480;
 
     int m_playerID;
     std::unordered_map<sf::Keyboard::Key, Action> m_keyBinding;

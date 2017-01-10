@@ -6,6 +6,8 @@
 
 #include <cmath>
 
+uint16_t Ball::Speed = 0;
+
 Ball::Ball(int id) : SceneNode(Category::Ball, id), m_destroyed(false) {
   m_ball.setRadius(Radius - 3);
   m_ball.setOutlineThickness(3);

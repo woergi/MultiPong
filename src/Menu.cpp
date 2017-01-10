@@ -28,6 +28,12 @@ Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(Sele
   txt.setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
   m_menuEntries[SelectedElement::PlayerNum] = txt;
 
+  txt.setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+  m_menuEntries[SelectedElement::PaddleSpeed] = txt;
+
+  txt.setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
+  m_menuEntries[SelectedElement::BallSpeed] = txt;
+
   txt.setString("Controls...");
   m_menuEntries[SelectedElement::Controls] = txt;
 
@@ -73,11 +79,27 @@ bool Menu::handleEvent(const sf::Event& ev) {
         getContext().players->pop_back();
         m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
       }
+      else if (m_selState == SelectedElement::PaddleSpeed) {
+        Player::decPlayerSpeed();
+        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+      }
+      else if (m_selState == SelectedElement::BallSpeed) {
+        Ball::decBallSpeed();
+        m_menuEntries[SelectedElement::BallSpeed].setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
+      }
     }
     else if (ev.key.code == sf::Keyboard::Right) {
       if (m_selState == SelectedElement::PlayerNum) {
         getContext().players->emplace_back(std::shared_ptr<Player>(new Player(getContext().players->size()+1)));
         m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+      }
+      else if (m_selState == SelectedElement::PaddleSpeed) {
+        Player::incPlayerSpeed();
+        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+      }
+      else if (m_selState == SelectedElement::BallSpeed) {
+        Ball::incBallSpeed();
+        m_menuEntries[SelectedElement::BallSpeed].setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
       }
     }
     else if (ev.key.code == sf::Keyboard::Return) {
