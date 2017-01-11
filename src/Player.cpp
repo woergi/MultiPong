@@ -4,7 +4,7 @@
 
 #include <cassert>
 
-uint16_t Player::PlayerSpeed = Player::MaxPlayerSpeed / 2;
+uint16_t Player::PlayerSpeed = (Player::MaxPlayerSpeed-Player::MinPlayerSpeed) / 2 + Player::MinPlayerSpeed;
 
 Player::Player(int playerID) : m_playerID(playerID) {
   auto moveLambda = [](float speed, PlayerPaddle& p)

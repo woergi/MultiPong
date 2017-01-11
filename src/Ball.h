@@ -15,6 +15,7 @@ class Ball : public SceneNode {
     static uint16_t Speed;
     static constexpr uint16_t MinBallSpeed = 20.f;
     static constexpr uint16_t MaxBallSpeed = 480.f;
+    static constexpr uint16_t BallStepWidth = (MaxBallSpeed - MinBallSpeed)/100;
 
     bool collideWithPaddle(const PlayerPaddle* paddle);
 
@@ -24,12 +25,12 @@ class Ball : public SceneNode {
     inline bool isDestroyed() { return m_destroyed; }
 
     inline static void incBallSpeed() { 
-      Speed += 20; 
+      Speed += BallStepWidth; 
       if (Speed > MaxBallSpeed)
         Speed = MaxBallSpeed;
     }
     inline static void decBallSpeed() { 
-      Speed -= 20; 
+      Speed -= BallStepWidth; 
       if (Speed <= MinBallSpeed)
         Speed = MinBallSpeed;
     }

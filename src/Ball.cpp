@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-uint16_t Ball::Speed = Ball::MaxBallSpeed;
+uint16_t Ball::Speed = (Ball::MaxBallSpeed-Ball::MinBallSpeed) / 2 + Ball::MinBallSpeed;
 
 Ball::Ball(int id) : SceneNode(Category::Ball, id), m_destroyed(false) {
   m_ball.setRadius(Radius - 3);
