@@ -47,15 +47,14 @@ sf::FloatRect Ball::getGlobalBounds() const {
 
 bool Ball::collideWithPaddle(const PlayerPaddle* paddle) {
   if (paddle->getGlobalBounds().intersects(getGlobalBounds())) {
-    m_ballAngle = PI - m_ballAngle - std::rand() % 20 * PI / 180;
+    if (std::abs(m_ballAngle) > PI/2) {
+      m_ball.move(0.1f, 0);
+    }
+    else if (std::abs(m_ballAngle) < PI/2) {
+      m_ball.move(-0.1f, 0);
+    }
 
-    if (paddle->getPlayfieldSide() == PlayfieldSide::Left) {
-      m_ball.setPosition(2*Radius + 0.1f, m_ball.getPosition().y);
-    }
-    else if (paddle->getPlayfieldSide() == PlayfieldSide::Right) {
-      m_ball.setPosition(World::PlayfieldWidth - 2*Radius - 0.1f,
-                         m_ball.getPosition().y);
-    }
+    m_ballAngle = PI - m_ballAngle - std::rand() % 20 * PI / 180;
     return true;
   }
   return false;

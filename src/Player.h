@@ -81,6 +81,7 @@ class PlayerPaddle : public SceneNode {
     PlayfieldSide getPlayfieldSide() const { return m_side; }
 
     void destroy() { m_destroyed = true; }
+    bool isDesroyed() { return m_destroyed; }
 
   private:
     virtual void drawCurrent(sf::RenderTarget& target,sf::RenderStates states) const override final;

@@ -120,7 +120,7 @@ void World::handleBallCollissions() {
       derivedAction<Ball>([=](Ball& b) { b.destroy(); }) };
 
     for (auto p : m_palyerPaddles) {
-      if (b->collideWithPaddle(p)) {
+      if (!p->isDesroyed() && b->collideWithPaddle(p)) {
         collideWitPlayer = true;
         break;
       }
