@@ -20,6 +20,7 @@ class Menu : public State {
 
       Start,
       PlayerNum,
+      BallNum,
       PaddleSpeed,
       BallSpeed,
       Controls,

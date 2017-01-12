@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "StateStack.h"
 #include "Menu.h"
+#include "MusicPlayer.h"
 
 #include <memory>
 #include <SFML/Window.hpp>
@@ -18,6 +19,7 @@ int main(int argc, char* argv[]) {
   sf::RenderWindow window(sf::VideoMode(World::Width, World::Height), "MultiPong");
   std::vector<std::shared_ptr<Player>> players;
   ResourceHolder<FontID, sf::Font> m_resFont;
+  MusicPlayer musicPlayer;
 
   for (int playerNum = 1; playerNum <= 4; ++playerNum)
     players.emplace_back(std::shared_ptr<Player>(new Player(playerNum)));
@@ -34,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   m_resFont.load(FontID::Sansation, "resources/sansation.ttf");
 
-  State::Context ctx = {&window, &players, &m_resFont};
+  State::Context ctx = {&window, &players, 1, &m_resFont, &musicPlayer};
   StateStack states(ctx);
   sf::Clock clock;
   sf::Time timeSinceLastUpdate = sf::Time::Zero;

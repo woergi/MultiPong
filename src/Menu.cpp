@@ -2,6 +2,7 @@
 #include "Menu.h"
 #include "World.h"
 #include "Player.h"
+#include "MusicPlayer.h"
 
 Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::Start) {
   m_background.setSize(sf::Vector2f(World::PlayfieldWidth, World::PlayfieldHeight));
@@ -28,10 +29,13 @@ Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(Sele
   txt.setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
   m_menuEntries[SelectedElement::PlayerNum] = txt;
 
-  txt.setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+  txt.setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+  m_menuEntries[SelectedElement::BallNum] = txt;
+
+  txt.setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
   m_menuEntries[SelectedElement::PaddleSpeed] = txt;
 
-  txt.setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
+  txt.setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
   m_menuEntries[SelectedElement::BallSpeed] = txt;
 
   txt.setString("Controls...");
@@ -79,13 +83,17 @@ bool Menu::handleEvent(const sf::Event& ev) {
         getContext().players->pop_back();
         m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
       }
+      else if (m_selState == SelectedElement::BallNum && getContext().numBalls > 1) {
+        --getContext().numBalls;
+        m_menuEntries[SelectedElement::BallNum].setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+      }
       else if (m_selState == SelectedElement::PaddleSpeed) {
         Player::decPlayerSpeed();
-        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
       }
       else if (m_selState == SelectedElement::BallSpeed) {
         Ball::decBallSpeed();
-        m_menuEntries[SelectedElement::BallSpeed].setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
+        m_menuEntries[SelectedElement::BallSpeed].setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
       }
     }
     else if (ev.key.code == sf::Keyboard::Right) {
@@ -93,13 +101,17 @@ bool Menu::handleEvent(const sf::Event& ev) {
         getContext().players->emplace_back(std::shared_ptr<Player>(new Player(getContext().players->size()+1)));
         m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
       }
+      else if (m_selState == SelectedElement::BallNum) {
+        ++getContext().numBalls;
+        m_menuEntries[SelectedElement::BallNum].setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+      }
       else if (m_selState == SelectedElement::PaddleSpeed) {
         Player::incPlayerSpeed();
-        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + " >");
+        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
       }
       else if (m_selState == SelectedElement::BallSpeed) {
         Ball::incBallSpeed();
-        m_menuEntries[SelectedElement::BallSpeed].setString("Ball speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + " >");
+        m_menuEntries[SelectedElement::BallSpeed].setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
       }
     }
     else if (ev.key.code == sf::Keyboard::Return) {
@@ -107,6 +119,7 @@ bool Menu::handleEvent(const sf::Event& ev) {
         case SelectedElement::Start:
           requestStateClear();
           requestStackPush(StateID::World);
+          getContext().musicPlayer->play(Music::GameTheme);
           return true;
         case SelectedElement::Quit:
           getContext().window->close();
@@ -158,10 +171,12 @@ bool Pause::handleEvent(const sf::Event& ev) {
   if (ev.key.code == sf::Keyboard::Escape) {
     requestStateClear();
     requestStackPush(StateID::Menu_Main);
+    getContext().musicPlayer->stop();
   }
   else {
     if (ev.type == sf::Event::KeyPressed) {
       requestStackPop();
+      getContext().musicPlayer->setPaused(false);
       return true;
     }
   }
@@ -208,6 +223,7 @@ bool GameOver::handleEvent(const sf::Event& ev) {
   else if (ev.key.code == sf::Keyboard::Return) {
     requestStateClear();
     requestStackPush(StateID::World);
+    getContext().musicPlayer->play(Music::GameTheme);
     return true;
   }
   return false;

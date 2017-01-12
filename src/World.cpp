@@ -2,6 +2,7 @@
 #include "World.h"
 #include "Player.h"
 #include "Ball.h"
+#include "MusicPlayer.h"
 
 #include <SFML/Window.hpp>
 #include <iostream>
@@ -36,19 +37,20 @@ World::World(StateStack& stack, Context& ctx) :  State(stack, ctx) {
   ctx.teamWinSide = PlayfieldSide::None;
 
   updatePlayer();
+  for (int i = getContext().numBalls; i > 0; --i) {
+    SceneNode::Ptr ball(new Ball(i));
+    m_balls.push_back(static_cast<Ball*>(ball.get()));
+    getLayerRoot(SceneLayer::PlayField)->attachChild(std::move(ball));
+  }
 }
 
 void World::updatePlayer() {
   size_t numPlayers = 0;
-  int ballID = 0;
   for (const auto p : *getContext().players) {
     sf::Vector2f playerPos;
     playerPos.x = PlayerPaddle::Padding + (PlayerPaddle::Padding + PlayerPaddle::Width) * numPlayers / 2;
     if (numPlayers % 2) {
       playerPos.x = PlayfieldWidth - playerPos.x;
-      SceneNode::Ptr ball(new Ball(++ballID));
-      m_balls.push_back(static_cast<Ball*>(ball.get()));
-      getLayerRoot(SceneLayer::PlayField)->attachChild(std::move(ball));
     }
     playerPos.y = std::rand() % (PlayfieldHeight - PlayerPaddle::Height);
     PlayfieldSide side = numPlayers % 2 ? PlayfieldSide::Right : PlayfieldSide::Left;
@@ -78,9 +80,12 @@ bool World::handleEvent(const sf::Event& event) {
       if (event.key.code == sf::Keyboard::Escape) {
         requestStateClear();
         requestStackPush(StateID::Menu_Main);
+        getContext().musicPlayer->stop();
       }
-      else if (event.key.code == sf::Keyboard::Space)
+      else if (event.key.code == sf::Keyboard::Space) {
         requestStackPush(StateID::Menu_Pause);
+        getContext().musicPlayer->setPaused(true);
+      }
       break;
   }
 
@@ -160,6 +165,7 @@ void World::handleBallCollissions() {
     }
 
     if (getContext().teamWinSide != PlayfieldSide::None) {
+      getContext().musicPlayer->stop();
       requestStackPush(StateID::Menu_GameOver);
     }
   }
@@ -168,7 +174,9 @@ void World::handleBallCollissions() {
 void World::checkDrawn() {
   if (m_balls.empty() 
       && !m_alivePlayers[PlayfieldSide::Left].empty()
-      && !m_alivePlayers[PlayfieldSide::Right].empty())
+      && !m_alivePlayers[PlayfieldSide::Right].empty()) {
+    getContext().musicPlayer->stop();
     requestStackPush(StateID::Menu_GameOver);
+  }
 }
 

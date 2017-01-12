@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "ResourceHolder.h"
+#include "MusicPlayer.h"
 
 class StateStack;
 class Player;
@@ -30,7 +31,9 @@ class State {
 
       sf::RenderWindow* window;
       std::vector<std::shared_ptr<Player>>* players;
+      unsigned int numBalls;
       FontHolder* fonts;
+      MusicPlayer* musicPlayer;
 
       PlayfieldSide teamWinSide;
     };
