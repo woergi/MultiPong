@@ -1,5 +1,5 @@
 #Multi Player Pong - Alias: MultiPong
-[MultiPong Main](https://woergi.github.io/MultiPong/MultiPong.jpg)
+![MultiPong Main](https://woergi.github.io/MultiPong/MultiPong.jpg)
 
 Simple multiplayer Pong implementation based on SFML and C++11.
 
@@ -10,5 +10,5 @@ The Makefile directly uses the g++-6 program (because of my old
 Linux architecture) ;).
 
 ## Demo
-[MultiPong Demo](https://woergi.github.io/MultiPong/MultiPong.gif)
+![MultiPong Demo](https://woergi.github.io/MultiPong/MultiPong.gif)
 
