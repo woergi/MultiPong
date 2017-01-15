@@ -4,6 +4,11 @@
 #include "Player.h"
 #include "MusicPlayer.h"
 
+auto numPlayerEntry = [](const State::Context& ctx) { return "Number of Players:  < " + std::to_string(ctx.players->size()) + " >"; };
+auto numBallEntry = [](const State::Context& ctx) { return "Number of Balls:  < " + std::to_string(ctx.numBalls) + " >"; };
+auto paddleSpeedEntry = [](const State::Context& ctx) { return "Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >"; };
+auto ballSpeedEntry = [](const State::Context& ctx) { return "Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >"; };
+
 Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::Start) {
   m_background.setSize(sf::Vector2f(World::PlayfieldWidth, World::PlayfieldHeight));
   m_background.setOutlineThickness(3);
@@ -26,16 +31,16 @@ Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(Sele
   txt.setString("Quit");
   m_menuEntries[SelectedElement::Quit] = txt;
 
-  txt.setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+  txt.setString(numPlayerEntry(getContext()));
   m_menuEntries[SelectedElement::PlayerNum] = txt;
 
-  txt.setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+  txt.setString(numBallEntry(getContext()));
   m_menuEntries[SelectedElement::BallNum] = txt;
 
-  txt.setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
+  txt.setString(paddleSpeedEntry(getContext()));
   m_menuEntries[SelectedElement::PaddleSpeed] = txt;
 
-  txt.setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
+  txt.setString(ballSpeedEntry(getContext()));
   m_menuEntries[SelectedElement::BallSpeed] = txt;
 
   txt.setString("Controls...");
@@ -81,37 +86,37 @@ bool Menu::handleEvent(const sf::Event& ev) {
     else if (ev.key.code == sf::Keyboard::Left) {
       if (m_selState == SelectedElement::PlayerNum && getContext().players->size() > 2) {
         getContext().players->pop_back();
-        m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+        m_menuEntries[SelectedElement::PlayerNum].setString(numPlayerEntry(getContext()));
       }
       else if (m_selState == SelectedElement::BallNum && getContext().numBalls > 1) {
         --getContext().numBalls;
-        m_menuEntries[SelectedElement::BallNum].setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+        m_menuEntries[SelectedElement::BallNum].setString(numBallEntry(getContext()));
       }
       else if (m_selState == SelectedElement::PaddleSpeed) {
         Player::decPlayerSpeed();
-        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
+        m_menuEntries[SelectedElement::PaddleSpeed].setString(paddleSpeedEntry(getContext()));
       }
       else if (m_selState == SelectedElement::BallSpeed) {
         Ball::decBallSpeed();
-        m_menuEntries[SelectedElement::BallSpeed].setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
+        m_menuEntries[SelectedElement::BallSpeed].setString(ballSpeedEntry(getContext()));
       }
     }
     else if (ev.key.code == sf::Keyboard::Right) {
       if (m_selState == SelectedElement::PlayerNum) {
         getContext().players->emplace_back(std::shared_ptr<Player>(new Player(getContext().players->size()+1)));
-        m_menuEntries[SelectedElement::PlayerNum].setString("Number of Players:  < " + std::to_string(getContext().players->size()) + " >");
+        m_menuEntries[SelectedElement::PlayerNum].setString(numPlayerEntry(getContext()));
       }
       else if (m_selState == SelectedElement::BallNum) {
         ++getContext().numBalls;
-        m_menuEntries[SelectedElement::BallNum].setString("Number of Balls:  < " + std::to_string(getContext().numBalls) + " >");
+        m_menuEntries[SelectedElement::BallNum].setString(numBallEntry(getContext()));
       }
       else if (m_selState == SelectedElement::PaddleSpeed) {
         Player::incPlayerSpeed();
-        m_menuEntries[SelectedElement::PaddleSpeed].setString("Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >");
+        m_menuEntries[SelectedElement::PaddleSpeed].setString(paddleSpeedEntry(getContext()));
       }
       else if (m_selState == SelectedElement::BallSpeed) {
         Ball::incBallSpeed();
-        m_menuEntries[SelectedElement::BallSpeed].setString("Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >");
+        m_menuEntries[SelectedElement::BallSpeed].setString(ballSpeedEntry(getContext()));
       }
     }
     else if (ev.key.code == sf::Keyboard::Return) {
