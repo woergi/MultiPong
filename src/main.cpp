@@ -42,7 +42,8 @@ int main(int argc, char* argv[]) {
   sf::Time timeSinceLastUpdate = sf::Time::Zero;
   ctx.teamWinSide = PlayfieldSide::None;
 
-  states.registerState<Menu>(StateID::Menu_Main);
+  states.registerState<Menu_Main>(StateID::Menu_Main);
+  states.registerState<Menu_Options>(StateID::Menu_Options);
   states.registerState<Pause>(StateID::Menu_Pause);
   states.registerState<GameOver>(StateID::Menu_GameOver);
   states.registerState<World>(StateID::World);

@@ -9,7 +9,7 @@ auto numBallEntry = [](const State::Context& ctx) { return "Number of Balls:  < 
 auto paddleSpeedEntry = [](const State::Context& ctx) { return "Paddle Speed: < " + std::to_string(Player::getNormalizedPlayerSpeed()) + "% >"; };
 auto ballSpeedEntry = [](const State::Context& ctx) { return "Ball Speed: < " + std::to_string(Ball::getNormalizedBallSpeed()) + "% >"; };
 
-Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::Start) {
+Menu_Main::Menu_Main(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::Start) {
   m_background.setSize(sf::Vector2f(World::PlayfieldWidth, World::PlayfieldHeight));
   m_background.setOutlineThickness(3);
   m_background.setOutlineColor(sf::Color::Blue);
@@ -30,6 +30,83 @@ Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(Sele
 
   txt.setString("Quit");
   m_menuEntries[SelectedElement::Quit] = txt;
+
+  txt.setString("Options");
+  m_menuEntries[SelectedElement::Options] = txt;
+
+  int entryCnt = 0;
+  for (auto & element : m_menuEntries) {
+    element.second.move(0, 48 * entryCnt++);
+  }
+}
+
+void Menu_Main::draw() {
+  getContext().window->draw(m_background);
+  for (auto & element : m_menuEntries) {
+    if (element.first == m_selState)
+      element.second.setFillColor(sf::Color::Red);
+    else
+      element.second.setFillColor(sf::Color::White);
+    getContext().window->draw(element.second);
+  }
+}
+
+bool Menu_Main::update() {
+  return false;
+}
+
+bool Menu_Main::handleEvent(const sf::Event& ev) {
+  if (ev.type == sf::Event::KeyPressed) {
+    if (ev.key.code == sf::Keyboard::Down) {
+    unsigned nextVal = static_cast<unsigned>(m_selState) + 1;
+    if (nextVal >= static_cast<unsigned>(SelectedElement::END))
+      m_selState = static_cast<SelectedElement>(static_cast<unsigned>(SelectedElement::BEGIN) + 1);
+    else
+      m_selState = static_cast<SelectedElement>(nextVal);
+    }
+    else if (ev.key.code == sf::Keyboard::Up) {
+      unsigned prevVal = static_cast<unsigned>(m_selState) - 1;
+      if (prevVal == static_cast<unsigned>(SelectedElement::BEGIN))
+        m_selState = static_cast<SelectedElement>(static_cast<unsigned>(SelectedElement::END) - 1);
+      else
+        m_selState = static_cast<SelectedElement>(prevVal);
+    }
+    else if (ev.key.code == sf::Keyboard::Return) {
+      switch (m_selState) {
+        case SelectedElement::Start:
+          requestStateClear();
+          requestStackPush(StateID::World);
+          getContext().musicPlayer->play(Music::GameTheme);
+          return true;
+        case SelectedElement::Options:
+          requestStackPop();
+          requestStackPush(StateID::Menu_Options);
+          break;
+        case SelectedElement::Quit:
+          getContext().window->close();
+          break;
+      }
+    }
+  }
+
+  return false;
+}
+
+Menu_Options::Menu_Options(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(SelectedElement::PlayerNum) {
+  m_background.setSize(sf::Vector2f(World::PlayfieldWidth, World::PlayfieldHeight));
+  m_background.setOutlineThickness(3);
+  m_background.setOutlineColor(sf::Color::Blue);
+  m_background.setFillColor(sf::Color(0, 0, 0, 150));
+  m_background.setPosition(World::HPadding, World::HeaderHeight);
+
+  sf::Text txt;
+
+  txt.setFont(getContext().fonts->get(FontID::Sansation));
+  txt.setCharacterSize(32);
+  sf::FloatRect textRect = txt.getLocalBounds();
+  txt.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
+  txt.setPosition(m_background.getPosition().x + 32,
+      m_background.getPosition().y + m_background.getSize().y / 2);
 
   txt.setString(numPlayerEntry(getContext()));
   m_menuEntries[SelectedElement::PlayerNum] = txt;
@@ -52,7 +129,7 @@ Menu::Menu(StateStack& stack, Context& ctx) : State(stack, ctx), m_selState(Sele
   }
 }
 
-void Menu::draw() {
+void Menu_Options::draw() {
   getContext().window->draw(m_background);
   for (auto & element : m_menuEntries) {
     if (element.first == m_selState)
@@ -63,11 +140,11 @@ void Menu::draw() {
   }
 }
 
-bool Menu::update() {
+bool Menu_Options::update() {
   return false;
 }
 
-bool Menu::handleEvent(const sf::Event& ev) {
+bool Menu_Options::handleEvent(const sf::Event& ev) {
   if (ev.type == sf::Event::KeyPressed) {
     if (ev.key.code == sf::Keyboard::Down) {
     unsigned nextVal = static_cast<unsigned>(m_selState) + 1;
@@ -121,15 +198,13 @@ bool Menu::handleEvent(const sf::Event& ev) {
     }
     else if (ev.key.code == sf::Keyboard::Return) {
       switch (m_selState) {
-        case SelectedElement::Start:
-          requestStateClear();
-          requestStackPush(StateID::World);
-          getContext().musicPlayer->play(Music::GameTheme);
-          return true;
-        case SelectedElement::Quit:
-          getContext().window->close();
+        default:
           break;
       }
+    }
+    else if (ev.key.code == sf::Keyboard::Escape) {
+      requestStackPop();
+      requestStackPush(StateID::Menu_Main);
     }
   }
 
@@ -175,6 +250,7 @@ bool Pause::update() {
 bool Pause::handleEvent(const sf::Event& ev) {
   if (ev.key.code == sf::Keyboard::Escape) {
     requestStateClear();
+    requestStackPush(StateID::World);
     requestStackPush(StateID::Menu_Main);
     getContext().musicPlayer->stop();
   }
@@ -223,6 +299,7 @@ bool GameOver::update() {
 bool GameOver::handleEvent(const sf::Event& ev) {
   if (ev.key.code == sf::Keyboard::Escape) {
     requestStateClear();
+    requestStackPush(StateID::World);
     requestStackPush(StateID::Menu_Main);
   }
   else if (ev.key.code == sf::Keyboard::Return) {

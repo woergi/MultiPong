@@ -5,10 +5,10 @@
 
 #include "StateStack.h"
 
-class Menu : public State {
+class Menu_Main : public State {
   public:
-    Menu(StateStack& stack, Context& ctx);
-    virtual ~Menu() { }
+    Menu_Main(StateStack& stack, Context& ctx);
+    virtual ~Menu_Main() { }
 
   private:
     virtual void draw() override final;
@@ -19,13 +19,37 @@ class Menu : public State {
       BEGIN = 0,
 
       Start,
+      Options,
+      Quit,
+
+      END
+    };
+
+    sf::RectangleShape m_background;
+
+    SelectedElement m_selState;
+    std::map<SelectedElement, sf::Text> m_menuEntries;
+};
+
+class Menu_Options : public State {
+  public:
+    Menu_Options(StateStack& stack, Context& ctx);
+    virtual ~Menu_Options() { }
+
+  private:
+    virtual void draw() override final;
+    virtual bool update() override final;
+    virtual bool handleEvent(const sf::Event& ev) override final;
+
+    enum class SelectedElement {
+      BEGIN = 0,
+
       PlayerNum,
       BallNum,
       PaddleSpeed,
       BallSpeed,
       Controls,
-      Quit,
-      //Must have a consecutive numbering
+
       END
     };
 

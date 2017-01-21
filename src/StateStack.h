@@ -19,6 +19,7 @@ enum class StateID : short {
   None,
   World,
   Menu_Main,
+  Menu_Options,
   Menu_Pause,
   Menu_GameOver
 };
