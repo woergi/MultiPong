@@ -79,6 +79,7 @@ bool World::handleEvent(const sf::Event& event) {
     case sf::Event::KeyPressed:
       if (event.key.code == sf::Keyboard::Escape) {
         requestStateClear();
+        requestStackPush(StateID::World);
         requestStackPush(StateID::Menu_Main);
         getContext().musicPlayer->stop();
       }
