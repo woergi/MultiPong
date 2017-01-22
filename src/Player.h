@@ -25,6 +25,13 @@ class Player {
       Count
     };
 
+    enum class InputType : char {
+      BEGIN,
+      Keyboard,
+      Network,
+      END
+    };
+
     Player(int);
 
     void update(CommandQueue&);
@@ -39,6 +46,31 @@ class Player {
         if (ele.second == action)
           return ele.first;
       return sf::Keyboard::Unknown;
+    }
+
+    inline std::string getInputTypeStr() const {
+       switch (m_inputType) {
+         case InputType::Keyboard:
+           return "Keyboard";
+         case InputType::Network:
+           return "Network";
+      }
+      assert(false);
+      return "Unknown";
+    }
+
+    inline InputType getInputType() const {
+      return m_inputType;
+    }
+    
+    inline void togglePrevInputType() {
+      m_inputType = static_cast<InputType>(static_cast<char>(m_inputType) - 1  <= static_cast<char>(InputType::BEGIN) ?
+        static_cast<char>(InputType::END) - 1 : static_cast<char>(m_inputType) - 1);
+    }
+
+    inline void toggleNextInputType() {
+      m_inputType = static_cast<InputType>(static_cast<char>(m_inputType) + 1 >= static_cast<char>(InputType::END) ?
+        static_cast<char>(InputType::BEGIN) + 1 : static_cast<char>(m_inputType) + 1);
     }
 
     inline int getPlayerNum() { return m_playerID; }
@@ -67,6 +99,7 @@ class Player {
     int m_playerID;
     std::unordered_map<sf::Keyboard::Key, Action> m_keyBinding;
     std::unordered_map<Action, Command> m_actionMap;
+    InputType m_inputType;
 };
 
 class PlayerPaddle : public SceneNode {

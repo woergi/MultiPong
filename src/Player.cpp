@@ -6,7 +6,7 @@
 
 uint16_t Player::PlayerSpeed = (Player::MaxPlayerSpeed-Player::MinPlayerSpeed) / 2 + Player::MinPlayerSpeed;
 
-Player::Player(int playerID) : m_playerID(playerID) {
+Player::Player(int playerID) : m_playerID(playerID), m_inputType(InputType::Keyboard) {
   auto moveLambda = [](float speed, PlayerPaddle& p)
       {p.move(sf::Vector2f(0.f, speed) * World::TimePerFrame.asSeconds());};
 

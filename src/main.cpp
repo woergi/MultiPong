@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 
   states.registerState<Menu_Main>(StateID::Menu_Main);
   states.registerState<Menu_Options>(StateID::Menu_Options);
+  states.registerState<Menu_Controls>(StateID::Menu_Controls);
   states.registerState<Pause>(StateID::Menu_Pause);
   states.registerState<GameOver>(StateID::Menu_GameOver);
   states.registerState<World>(StateID::World);
