@@ -12,4 +12,3 @@ Linux architecture) ;).
 ## Demo
 ![MultiPong Demo](https://woergi.github.io/MultiPong/MultiPong.gif)
 
-
