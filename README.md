@@ -1,7 +1,7 @@
 #Multi Player Pong - Alias: MultiPong
 ![MultiPong Main](https://woergi.github.io/MultiPong/MultiPong.jpg)
 
-Simple multiplayer Pong implementation based on SFML and C++11.
+Simple multiplayer Pong implementation based on SFML and C++11. 
 
 ## Build
 
